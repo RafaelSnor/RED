@@ -75,7 +75,7 @@ layout = html.Div([
     Input("btn_xlsx", "n_clicks"),
     State('REGION', 'value'),
     State('NODO', 'value'),
-    Input('type_selection', 'value'),
+    State('type_selection', 'value'),
     prevent_initial_call=True 
 )
 def func(n_clicks, region, nodos,type_selection):
@@ -84,6 +84,7 @@ def func(n_clicks, region, nodos,type_selection):
         return None  # No genera el archivo si no hay datos
     
     df_dw = df[df['DEPARTAMENTO'] == region]
+
     if type_selection == "ID":
         df_dz = df_dw[df_dw['ID'].isin(nodos)][['DISTRITAL']].dropna()
     else:
@@ -92,14 +93,19 @@ def func(n_clicks, region, nodos,type_selection):
     lista_distritales = df_dz['DISTRITAL'].tolist()
     ##DF PARA TODOS LOS NODOS AX
     df_filtrado = df_ax[df_ax['SALTO 0'].isin(lista_distritales)]
-    df_melted = df_filtrado.melt(value_name="LISTA TOTAL DE AX")["LISTA TOTAL DE AX"].dropna().drop_duplicates().reset_index(drop=True) #crea un nuevo dataframe 
 
-  
+    df_melted = df_filtrado.melt(value_name="LISTA TOTAL DE AX")["LISTA TOTAL DE AX"].dropna().drop_duplicates().reset_index(drop=True) #crea un nuevo dataframe 
+    df_distritales= df_dz['DISTRITAL']
     if df_melted.empty:
         return None  
-    return dcc.send_data_frame(df_melted.to_excel, "Datos.xlsx", sheet_name="NODOS AX")
 
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        df_distritales.to_excel(writer, sheet_name="NODOS DISTRITALES", index=False)
+        df_melted.to_excel(writer, sheet_name="NODOS AX", index=False)
 
+    output.seek(0)
+    return dcc.send_bytes(output.getvalue(), filename=f'Datos_{region}.xlsx')
 
 @callback(
     Output('lst_anillos', 'children'),
