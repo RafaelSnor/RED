@@ -4,7 +4,7 @@ from dash.dependencies import Input, Output, State
 
 
 app = Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.LUX])
-
+server = app.server
 app.layout = dbc.Container([
     dbc.Button("☰ Menú", id="open-offcanvas", n_clicks=0, className="mb-2"),
     
