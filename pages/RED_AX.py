@@ -4,12 +4,12 @@ import pandas as pd
 
 # Cargar los datos desde Excel
 #url='https://docs.google.com/spreadsheets/d/e/2PACX-1vS6jR4F7HMDXcVexiJmZ9plXuNX3ZO0yC4F8TwKf3eSr20GgCaMITByNdiFjmSqgA/pub?output=xlsx'
+url='https://docs.google.com/spreadsheets/d/e/2PACX-1vTU0SdQdcULvuqk9abcnzdW609dHXszo-JEfvp0RkQAyR1maTr5m9eINsli_5iGKQ/pub?output=xlsx'
+#df_d  = pd.read_excel('../BD_RED.xlsx', sheet_name='DEPENDIENTE')
+#df_ipt =pd.read_excel('../BD_RED.xlsx', sheet_name='IPT-TDP')
 
-df_d  = pd.read_excel('../BD_RED.xlsx', sheet_name='DEPENDIENTE')
-df_ipt =pd.read_excel('../BD_RED.xlsx', sheet_name='IPT-TDP')
-
-#df_d = pd.read_excel(url, sheet_name='DEPENDIENTE')
-#df_ipt = pd.read_excel(url, sheet_name='IPT-TDP')
+df_d = pd.read_excel(url, sheet_name='DEPENDIENTE')
+df_ipt = pd.read_excel(url, sheet_name='IPT-TDP')
 
 
 register_page(__name__, path="/RED_AX")
