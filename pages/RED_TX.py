@@ -3,7 +3,7 @@ import dash_cytoscape as cyto
 import pandas as pd
 import dash_bootstrap_components as dbc
 
-
+url='https://docs.google.com/spreadsheets/d/e/2PACX-1vTU0SdQdcULvuqk9abcnzdW609dHXszo-JEfvp0RkQAyR1maTr5m9eINsli_5iGKQ/pub?output=xlsx'
 df = pd.read_excel('../BD_RED.xlsx', sheet_name='BD')
 df_eg =pd.read_excel('../BD_RED.xlsx', sheet_name='EDGES')
 df_ax=pd.read_excel('../BD_RED.xlsx', sheet_name='N_AX')
