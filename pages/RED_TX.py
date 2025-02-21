@@ -4,9 +4,9 @@ import pandas as pd
 import dash_bootstrap_components as dbc
 
 
-df = pd.read_excel(r'D:\python\libreia dash\PROYECTO\BD_RED.xlsx', sheet_name='BD')
-df_eg =pd.read_excel(r'D:\python\libreia dash\PROYECTO\BD_RED.xlsx', sheet_name='EDGES')
-df_ax=pd.read_excel(r'D:\python\libreia dash\PROYECTO\BD_RED.xlsx', sheet_name='N_AX')
+df = pd.read_excel(r'\BD_RED.xlsx', sheet_name='BD')
+df_eg =pd.read_excel(r'\BD_RED.xlsx', sheet_name='EDGES')
+df_ax=pd.read_excel(r'\BD_RED.xlsx', sheet_name='N_AX')
 register_page(__name__, path="/RED_TX")
 #app = Dash()
 
