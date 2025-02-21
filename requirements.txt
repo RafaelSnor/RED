@@ -3,3 +3,4 @@ dash_cytoscape
 dash-bootstrap-components
 pandas
 openpyxl
+gunicorn
