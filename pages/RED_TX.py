@@ -2,6 +2,7 @@ from dash import Dash, dcc, html, Input, Output, callback, ctx, register_page, S
 import dash_cytoscape as cyto
 import pandas as pd
 import dash_bootstrap_components as dbc
+import io
 
 url='https://docs.google.com/spreadsheets/d/e/2PACX-1vTU0SdQdcULvuqk9abcnzdW609dHXszo-JEfvp0RkQAyR1maTr5m9eINsli_5iGKQ/pub?output=xlsx'
 
