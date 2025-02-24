@@ -1,10 +1,13 @@
 from dash import Dash, dcc, html, page_container
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
-
+import requests
+import threading
+import time
 
 app = Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.LUX])
-server = app.server
+server = app.server  # Necesario para Render
+
 app.layout = dbc.Container([
     dbc.Button("☰ Menú", id="open-offcanvas", n_clicks=0, className="mb-2"),
     
@@ -22,7 +25,7 @@ app.layout = dbc.Container([
         id="offcanvas-menu",
         title="Menú",
         is_open=False,
-        placement="start",  # Se oculta a la izquierda
+        placement="start",
     ),
 
     html.Br(),
@@ -40,5 +43,18 @@ def toggle_offcanvas(n, is_open):
         return not is_open
     return is_open
 
+# Keep-alive solo si no está en modo debug
+def keep_awake():
+    while True:
+        try:
+            requests.get("https://red-yk09.onrender.com")  # Reemplaza con tu URL
+            print("Keep-alive ejecutado")
+        except Exception as e:
+            print("Error en keep-alive:", e)
+        time.sleep(600)  # Cada 10 minutos
+
 if __name__ == '__main__':
-    app.run(debug=True,dev_tools_ui=False, dev_tools_props_check=False)
+    if not app.debug:  # Solo ejecuta el keep-alive en producción
+        threading.Thread(target=keep_awake, daemon=True).start()
+    
+    app.run(debug=True, dev_tools_ui=False, dev_tools_props_check=False)
