@@ -9,8 +9,26 @@ url='https://docs.google.com/spreadsheets/d/e/2PACX-1vTU0SdQdcULvuqk9abcnzdW609d
 df = pd.read_excel(url, sheet_name='BD')
 df_eg =pd.read_excel(url, sheet_name='EDGES')
 df_ax=pd.read_excel(url, sheet_name='N_AX')
+
+#df = pd.read_excel(r'D:\python\libreia dash\PROYECTO\BD_RED.xlsx', sheet_name='BD')
+#df_eg =pd.read_excel(r'D:\python\libreia dash\PROYECTO\BD_RED.xlsx', sheet_name='EDGES')
+#df_ax=pd.read_excel(r'D:\python\libreia dash\PROYECTO\BD_RED.xlsx', sheet_name='N_AX')
+
+
 register_page(__name__, path="/RED_TX")
 #app = Dash()
+
+#COLORES asignados para los anillos
+anillo_colors = {
+        "ANILLO - 01": "#f39c12",
+        "ANILLO - 02": "#9932CC",
+        "ANILLO - 03": "#00BFFF",
+        "ANILLO - 04": "#FFD700",
+        "ANILLO - 05": "#FFB6C1",
+        "ANILLO - 06": "#4169E1",
+        "ANILLO - 07": "#A0522D",
+        "ANILLO - 08": "#273746",
+    }
 
 #app.layout = html.Div([
 layout = html.Div([
@@ -51,6 +69,7 @@ layout = html.Div([
             layout={'name': 'preset', 'fit': True},
             maxZoom=3,
             minZoom=0.15,
+            
         ),
         html.Div(
             id='lst_anillos',
@@ -95,6 +114,7 @@ def func(n_clicks, region, nodos,type_selection):
     ##DF PARA TODOS LOS NODOS AX
     df_filtrado = df_ax[df_ax['SALTO 0'].isin(lista_distritales)]
 
+
     df_melted = df_filtrado.melt(value_name="LISTA TOTAL DE AX")["LISTA TOTAL DE AX"].dropna().drop_duplicates().reset_index(drop=True) #crea un nuevo dataframe 
     df_distritales= df_dz['DISTRITAL']
     if df_melted.empty:
@@ -108,6 +128,7 @@ def func(n_clicks, region, nodos,type_selection):
     output.seek(0)
     return dcc.send_bytes(output.getvalue(), filename=f'Datos_{region}.xlsx')
 
+
 @callback(
     Output('lst_anillos', 'children'),
     Input('REGION', 'value')
@@ -116,17 +137,7 @@ def lista_de_anillos(selected_region):
     filtered_anillos = df[(df['DEPARTAMENTO'] == selected_region) & 
                            (df['ANILLO'].str.contains("ANILLO", na=False))]['ANILLO'].unique()
     
-    anillo_colors = {
-        "ANILLO - 01": "#f39c12",
-        "ANILLO - 02": "#9932CC",
-        "ANILLO - 03": "#00BFFF",
-        "ANILLO - 04": "#FFD700",
-        "ANILLO - 05": "#FFB6C1",
-        "ANILLO - 06": "#4169E1",
-        "ANILLO - 07": "#A0522D",
-        "ANILLO - 08": "#273746",
-    }
-    
+
     legend_elements = [html.Strong("Leyenda:",style={'font-size': '12px'})]
 
     for anillo in filtered_anillos:
@@ -136,12 +147,10 @@ def lista_de_anillos(selected_region):
                 html.Span(style={'display': 'inline-block', 'width': '12px', 'height': '12px', 
                                  'backgroundColor': color, 'marginRight': '5px'}),
                 html.Span(anillo, style={'font-size': '11px'}),                 
-                #html.Span(anillo)
             ], style={'display': 'flex', 'alignItems': 'center'})
         )
 
     return legend_elements
-
 
 
 @callback(
@@ -154,23 +163,29 @@ def update_nodo_options(selected_region, selected_type):
     
     # Filtrar según el tipo seleccionado (CODIGO o ANILLO), VALORES UNICOS
     if selected_type=="ID":
-        return [{'label': value, 'value': value} for value in filtered_df[selected_type].dropna().unique()]
+        #return [{'label': value, 'value': value} for value in filtered_df[selected_type].dropna().unique()]
+        return [{'label': cod, 'value': id} for cod, id in filtered_df[['CODIGO', 'ID']].values]
+
     elif selected_type=="ANILLO":
         return [{'label': value, 'value': value} for value in filtered_df[selected_type].dropna().unique()]
-     #"label": f"{str(row['CODIGO'])[:11]}\n{str(row['CODIGO'])[12:]}" if pd.notna(row['CODIGO']) else "",
-
+   
 # Callback para mostrar solo el resultado de la suma de las column
 @callback(
     Output('cytoscape-graph', 'elements'),
     Output('cytoscape-graph', 'stylesheet'),
     Output('column-sums', 'children'),
-    [Input('REGION', 'value'), Input('NODO', 'value'), Input('type_selection', 'value'),]
+    Input('REGION', 'value'), 
+    Input('NODO', 'value'), 
+    Input('type_selection', 'value'),
 )
 def update_graph(selected_region, selected_nodos, selected_type):
     # Filtrar nodos y enlaces según la región seleccionada
-    filtered_df = df[df['DEPARTAMENTO'] == selected_region]
-    filtered_eg = df_eg[df_eg['DEPARTAMENTO'] == selected_region]
+
+    
+    filtered_df = df[df['DEPARTAMENTO'] == selected_region] ### CANDIDATO A PONERLO EN LA MEMORIA DEL NAVEGADOR
+    filtered_eg = df_eg[df_eg['DEPARTAMENTO'] == selected_region]### CANDIDATO A PONERLO EN LA MEMORIA DEL NAVEGADOR
    
+
     # Crear nodos y posiciones
     nodes = [
         {
@@ -215,24 +230,16 @@ def update_graph(selected_region, selected_nodos, selected_type):
             }
         }
     ]
-    # Asignar colores por ANILLO
-    anillo_colors = {
-        "ANILLO - 01": "#f39c12",
-        "ANILLO - 02": "#9932CC",
-        "ANILLO - 03": "#00BFFF",
-        "ANILLO - 04": "#FFD700",
-        "ANILLO - 05": "#FFB6C1",
-        "ANILLO - 06": "#4169E1",
-        "ANILLO - 07": "#A0522D",
-        "ANILLO - 08": "#273746",
-    }
+  
     for anillo, color in anillo_colors.items():
         s_stylesheet.append({
             "selector": f'[firstname = "{anillo}"]',
             "style": {"background-color": color}
         })
 
+
     # Calcular valores de impacto en la red
+
     if selected_nodos == []:
         return nodes + edges, s_stylesheet, "SIN NODOS SELECIONADOS"
    
@@ -268,7 +275,7 @@ def update_graph(selected_region, selected_nodos, selected_type):
 
     return nodes + edges, s_stylesheet, sum_label
 
-# Callback para manejar la selección de nodos
+# Callback para manejar la selección de nodos, cada vez que se selecione un nodo con un clic se agrergara al Dropdown correspondiente
 @callback(
     Output('NODO', 'value'),
     [Input('cytoscape-graph', 'tapNodeData'), Input('NODO', 'value')],
@@ -291,6 +298,3 @@ def update_selected_nodes(tapped_node, selected_nodes):
 
     return selected_nodes
 
-
-#if __name__ == '__main__':
-    #app.run(debug=True)
