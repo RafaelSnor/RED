@@ -83,7 +83,7 @@ def selector(type_selec):
         options = [{'label': f"{d}-A01", 'value': d} for d in pd.concat([df_d['SOURCE'], df_d['TANGET']]).drop_duplicates().dropna().values]
 
     if options:
-        default_value = options[0]['value']  # Selecciona el primer valor como predeterminado
+        default_value = options[0]['value']  
 
     return options, default_value
     
@@ -101,7 +101,7 @@ def displayTapNodeData(tapped_node,value_data):
             "selector": "node",
             "style": {
                 "content": "data(label)",
-                "background-color": "#229954",  # Color predeterminado
+                "background-color": "#229954",  
                 "color": "#000000",
                 "text-valign": "top",
                 "text-halign": "center",
@@ -121,7 +121,6 @@ def displayTapNodeData(tapped_node,value_data):
     ]
 
     ####################################################
-    #  Cambiar el color del nodo selecionado y los actualiza
     
     if tapped_node:
         list_ax=[]
@@ -145,7 +144,7 @@ def displayTapNodeData(tapped_node,value_data):
             base_stylesheet.append({
                 "selector": f"node[id = '{i}']",
                 "style": {
-                    "background-color": "#5dade2",  # Color del nodo 
+                    "background-color": "#5dade2",  
                     "width": "30px",
                     "height": "30px",
                 }
@@ -161,20 +160,17 @@ def displayTapNodeData(tapped_node,value_data):
         }
     })    
     
-    ####################################################
-
-    #GENERA UNA TABLA CUANDO COINCIDE EL NODO CON LA VLAN DE ALGUN CLIENTE.
+   
 
     if tapped_node is None:
-        return "Haz clic en un nodo para ver más detalles." ,base_stylesheet  # Mensaje predeterminado si no hay nodo seleccionado
-
-    node_id = tapped_node.get('id')  # Obtener el ID del nodo clickeado
+        return "Haz clic en un nodo para ver más detalles." ,base_stylesheet 
+    node_id = tapped_node.get('id') 
     vlan =df_ipt[df_ipt['Codigo POP Coberturador'].isin(list_ax)][['VLAN', 'Codigo POP Coberturador', 'INTERFACE','CLIENTE']]
 
     if vlan.empty:
         return f"NODO {tapped_node['label'][:7]}, sin Vlan's de Clientes disponibles.", base_stylesheet
 
-    # Crear la tabla HTML a partir de vlan_info
+   
 
     tabla = dash_table.DataTable(
         style_data={
@@ -199,7 +195,7 @@ def displayTapNodeData(tapped_node,value_data):
     Input('type_selection', 'value'),
 )
 def update_cytoscape_elements(selected_node, type_selec):
-    if not selected_node:  # Si no se selecciona nada
+    if not selected_node:  
         return [], {'name': 'breadthfirst', 'directed': True}
 
     if type_selec == "DISTRITAL":
@@ -208,22 +204,21 @@ def update_cytoscape_elements(selected_node, type_selec):
 
     elif type_selec == "ID":
         nodo_d = df_d.loc[df_d['SOURCE'] == selected_node, 'ID'].values
-        if nodo_d.size == 0:  # Verifica si nodo_d está vacío
+        if nodo_d.size == 0: 
             nodo_d = df_d.loc[df_d['TANGET'] == selected_node, 'ID'].values
             if nodo_d.size == 0:    
-                return [], {'name': 'breadthfirst', 'directed': True}  # Retorna un grafo vacío
+                return [], {'name': 'breadthfirst', 'directed': True} 
         root = nodo_d[0]
         dependents = df_d[df_d['ID'] == root]
 
     elif type_selec == "VLAN":
         nodo_d = df_ipt.loc[df_ipt['Codigo POP Coberturador'] == selected_node, 'Codigo NODO RAIZ'].values
-        if nodo_d.size == 0:  # Verifica si nodo_d está vacío
-            return [], {'name': 'breadthfirst', 'directed': True}  # Retorna un grafo vacío
+        if nodo_d.size == 0: 
+            return [], {'name': 'breadthfirst', 'directed': True}  
         root = nodo_d[0]
    
         dependents = df_d[df_d['ID'] == root]
 
-    # Combina y limpia los datos de nodos
     concate = pd.concat([dependents['SOURCE'], dependents['TANGET']])
     dependent_nodes = [{"data": {"id": dep, "label": f"{dep}-A01"}} for dep in concate.dropna().unique()]
     edges = [{"data": {"source": s, "target": t}} for s, t in dependents[['SOURCE', 'TANGET']].dropna().values]
@@ -236,5 +231,4 @@ def update_cytoscape_elements(selected_node, type_selec):
         'fit': True,
     }
 
-#if __name__ == '__main__':
-    #app.run_server(debug=True)
+
