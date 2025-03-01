@@ -51,7 +51,8 @@ layout = html.Div([
 
         html.Label('IMPACTO EN LA RED:', style={'font-weight': 'bold'}),  
         dcc.Markdown(id='column-sums',style={'font-size': '12px'}),
-        dbc.Button("Download Excel", color="success", className="me-1", id="btn_xlsx"),
+        dbc.Button("Download Excel_AX", color="success", className="me-1", id="btn_xlsx"),
+        dbc.Button("Download Excel_TX", color="success", className="me-1"),    
         dcc.Download(id="download-dataframe-xlsx"),
 
     ], style={'width': '25%', 'display': 'inline-block','font-family': 'Georgia'}), 
