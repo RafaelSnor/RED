@@ -41,7 +41,7 @@ layout = html.Div([
                      {'label': 'ANILLO', 'value': 'ANILLO'}], ###CAMBIASTE CODIGO por ID
             value='ID', 
             inline=True, 
-            #id='type_selection',
+            id='type_selection',
             #className="btn-group",
             #inputClassName="btn-check",
             #labelClassName="btn btn-outline-primary",
