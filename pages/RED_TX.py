@@ -40,12 +40,12 @@ layout = html.Div([
             options=[{'label': 'ID', 'value': 'ID'},
                      {'label': 'ANILLO', 'value': 'ANILLO'}], ###CAMBIASTE CODIGO por ID
             value='ID', 
-            #inline=True, 
-            id='type_selection',
-            className="btn-group",
-            inputClassName="btn-check",
-            labelClassName="btn btn-outline-primary",
-            labelCheckedClassName="active",    
+            inline=True, 
+            #id='type_selection',
+            #className="btn-group",
+            #inputClassName="btn-check",
+            #labelClassName="btn btn-outline-primary",
+            #labelCheckedClassName="active",    
         ),
 
         dcc.Dropdown(
