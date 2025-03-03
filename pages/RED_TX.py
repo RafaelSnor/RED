@@ -10,10 +10,6 @@ df = pd.read_excel(url, sheet_name='BD')
 df_eg =pd.read_excel(url, sheet_name='EDGES')
 df_ax=pd.read_excel(url, sheet_name='N_AX')
 
-#df = pd.read_excel(r'D:\python\libreia dash\PROYECTO\BD_RED.xlsx', sheet_name='BD')
-#df_eg =pd.read_excel(r'D:\python\libreia dash\PROYECTO\BD_RED.xlsx', sheet_name='EDGES')
-#df_ax=pd.read_excel(r'D:\python\libreia dash\PROYECTO\BD_RED.xlsx', sheet_name='N_AX')
-
 
 register_page(__name__, path="/RED_TX")
 
@@ -32,32 +28,40 @@ layout = html.Div([
     html.Div([
         dcc.Dropdown(
             options=[{'label': dep, 'value': dep} for dep in df['DEPARTAMENTO'].unique()],
-            value='HUANCAVELICA',  
+            value='HUANCAVELICA', 
             id='REGION',
+            className="rounded-3 shadow-sm",
             
         ),
-        dcc.RadioItems(
+        html.Br(),
+        html.Div([
+            dbc.RadioItems(
             options=[{'label': 'ID', 'value': 'ID'},
-                     {'label': 'ANILLO', 'value': 'ANILLO'}], ###CAMBIASTE CODIGO por ID
-            value='ID', 
-            inline=True, 
+                    {'label': 'ANILLO', 'value': 'ANILLO'}],
+            value='ID',
             id='type_selection',
-            #className="btn-group",
-            #inputClassName="btn-check",
-            #labelClassName="btn btn-outline-primary",
-            #labelCheckedClassName="active",    
-        ),
-
+            className="btn-group",  
+            inputClassName="btn-check",
+            labelClassName="btn btn-outline-dark",
+            labelCheckedClassName="active",
+            )
+            
+        ]),
+        
+        html.Br(),
         dcc.Dropdown(
-            id='NODO',  
+            id='NODO', 
             multi=True  
         ),
-
-        html.Label('IMPACTO EN LA RED:', style={'font-weight': 'bold'}),  
+        html.Hr(),
+        html.Label('IMPACTO EN LA RED:', style={'font-weight': 'bold'}),  # Título
         dcc.Markdown(id='column-sums',style={'font-size': '12px'}),
-        dbc.Button("Download Excel_AX", color="success", className="me-1", id="btn_xlsx"),
-        dbc.Button("Download Excel_TX", color="primary", className="me-1"),    
-        dcc.Download(id="download-dataframe-xlsx"),
+        html.Div([
+        dbc.Button("Download Excel_AX", color="success", className="me-2 botones", id="btn_ax_xlsx"),
+        dbc.Button("Download Excel_TX", color="primary", className="me-2 botones", id="btn_tx_xlsx"), 
+        ], className="d-flex"),
+        dcc.Download(id="download-dataframe_ax-xlsx"),
+        dcc.Download(id="download-dataframe_tx-xlsx"),
 
     ], style={'width': '25%', 'display': 'inline-block','font-family': 'Georgia'}), 
 
@@ -71,30 +75,20 @@ layout = html.Div([
             layout={'name': 'preset', 'fit': True},
             maxZoom=3,
             minZoom=0.15,
-            
         ),
         html.Div(
             id='lst_anillos',
-            style={
-                'position': 'absolute',
-                'top': '10px',
-                'left': '10px',
-                'background': 'white',
-                'padding': '10px',
-                'border-radius': '5px',
-                'box-shadow': '0px 0px 5px rgba(0,0,0,0.3)',
-                'zIndex': '10'  
-            }
+            className='leyenda_anillos',
         )
-    ], style={'position': 'relative', 'width': '100%', 'height': '550px'})  
+    ], style={'position': 'relative', 'width': '100%', 'height': '550px'}) 
     ], style={'width': '75%' ,'display': 'inline-block', 'font-family': 'monospace', 'float': 'right'})
 ])
 
-########GENERADOR DE EXCEL
+########GENERADOR DE EXCEL AX
 
 @callback(
-    Output("download-dataframe-xlsx", "data"),
-    Input("btn_xlsx", "n_clicks"),
+    Output("download-dataframe_ax-xlsx", "data"),
+    Input("btn_ax_xlsx", "n_clicks"),
     State('REGION', 'value'),
     State('NODO', 'value'),
     State('type_selection', 'value'),
@@ -113,7 +107,6 @@ def func(n_clicks, region, nodos,type_selection):
         df_dz = df_dw[df_dw['ANILLO'].isin(nodos)][['DISTRITAL']].dropna()
 
     lista_distritales = df_dz['DISTRITAL'].tolist()
-    ##DF PARA TODOS LOS NODOS AX
     df_filtrado = df_ax[df_ax['SALTO 0'].isin(lista_distritales)]
 
 
@@ -128,9 +121,37 @@ def func(n_clicks, region, nodos,type_selection):
         df_melted.to_excel(writer, sheet_name="NODOS AX", index=False)
 
     output.seek(0)
-    return dcc.send_bytes(output.getvalue(), filename=f'Datos_{region}.xlsx')
+    return dcc.send_bytes(output.getvalue(), filename=f'DATOS_AX_{region}.xlsx')
 
+####################### EXCEL TX
 
+@callback(
+    Output("download-dataframe_tx-xlsx", "data"),
+    Input("btn_tx_xlsx", "n_clicks"),
+    State('REGION', 'value'),
+    State('NODO', 'value'),
+    State('type_selection', 'value'),
+    prevent_initial_call=True 
+)
+def func(n_clicks, region, nodos,type_selection):
+
+    if not region or not nodos:
+        return None  
+    
+    df_dw = df[df['DEPARTAMENTO'] == region]
+
+    if type_selection == "ID":
+        df_dz = df_dw[df_dw['ID'].isin(nodos)][['CODIGO']].dropna()
+    else:
+        df_dz = df_dw[df_dw['ANILLO'].isin(nodos)][['CODIGO']].dropna()
+
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        df_dz.to_excel(writer, sheet_name="NODOS TX", index=False)
+    
+    output.seek(0)
+    return dcc.send_bytes(output.getvalue(), filename=f'DATOS_TX_{region}.xlsx')
+##################################
 @callback(
     Output('lst_anillos', 'children'),
     Input('REGION', 'value')
@@ -139,7 +160,6 @@ def lista_de_anillos(selected_region):
     filtered_anillos = df[(df['DEPARTAMENTO'] == selected_region) & 
                            (df['ANILLO'].str.contains("ANILLO", na=False))]['ANILLO'].unique()
     
-
     legend_elements = [html.Strong("Leyenda:",style={'font-size': '12px'})]
 
     for anillo in filtered_anillos:
@@ -151,23 +171,22 @@ def lista_de_anillos(selected_region):
                 html.Span(anillo, style={'font-size': '11px'}),                 
             ], style={'display': 'flex', 'alignItems': 'center'})
         )
-
     return legend_elements
-
 
 @callback(
     Output('NODO', 'options'),
     [Input('REGION', 'value'), Input('type_selection', 'value')]
 )
 def update_nodo_options(selected_region, selected_type):
-
+   
     filtered_df = df[df['DEPARTAMENTO'] == selected_region]
-
+ 
     if selected_type=="ID":
         return [{'label': cod, 'value': id} for cod, id in filtered_df[['CODIGO', 'ID']].values]
 
     elif selected_type=="ANILLO":
         return [{'label': value, 'value': value} for value in filtered_df[selected_type].dropna().unique()]
+   
 
 @callback(
     Output('cytoscape-graph', 'elements'),
@@ -176,12 +195,15 @@ def update_nodo_options(selected_region, selected_type):
     Input('REGION', 'value'), 
     Input('NODO', 'value'), 
     Input('type_selection', 'value'),
+    
 )
 def update_graph(selected_region, selected_nodos, selected_type):
 
+    
     filtered_df = df[df['DEPARTAMENTO'] == selected_region] ### CANDIDATO A PONERLO EN LA MEMORIA DEL NAVEGADOR
     filtered_eg = df_eg[df_eg['DEPARTAMENTO'] == selected_region]### CANDIDATO A PONERLO EN LA MEMORIA DEL NAVEGADOR
- 
+   
+
     nodes = [
         {
         "data": {
@@ -196,8 +218,10 @@ def update_graph(selected_region, selected_nodos, selected_type):
         }
         for _, row in filtered_df.iterrows()
     ]
+   
     edges = [{"data": {"source": s, "target": t}} for s, t in filtered_eg[['side_A', 'side_B']].dropna().values]
 
+  
     s_stylesheet = [
         {
             "selector": "node",
@@ -264,6 +288,7 @@ def update_graph(selected_region, selected_nodos, selected_type):
 
     return nodes + edges, s_stylesheet, sum_label
 
+
 @callback(
     Output('NODO', 'value'),
     [Input('cytoscape-graph', 'tapNodeData'), Input('NODO', 'value')],
@@ -281,7 +306,7 @@ def update_selected_nodes(tapped_node, selected_nodes):
     if triggered_id == 'cytoscape-graph' and tapped_node:
         node_id = tapped_node['id']
         selected_nodes = set(selected_nodes)
-        selected_nodes ^= {node_id}  
+        selected_nodes ^= {node_id}  # Agregar si no está, eliminar si está
         return list(selected_nodes)
 
     return selected_nodes
