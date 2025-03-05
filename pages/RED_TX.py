@@ -260,7 +260,7 @@ def update_graph(selected_region, selected_nodos, selected_type):
     if selected_nodos:
         filtered_df = filtered_df[filtered_df[selected_type].isin(selected_nodos)]
 
-    numeric_cols = filtered_df.iloc[:, 7:20].select_dtypes(include='number')
+    numeric_cols = filtered_df.iloc[:, 7:16].select_dtypes(include='number')
     n_tx = filtered_df['CODIGO'].count()
     n_dist = filtered_df['DISTRITAL'].dropna().count()
     n_ax = int(filtered_df['NODOS AX'].sum())
