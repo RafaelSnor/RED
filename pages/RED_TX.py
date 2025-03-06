@@ -12,9 +12,7 @@ df_eg = sheets['EDGES']
 df_ax = sheets['N_AX']
 
 register_page(__name__, path="/RED_TX")
-#app = Dash()
 
-#COLORES asignados para los anillos
 anillo_colors = {
         "ANILLO - 01": "#f39c12",
         "ANILLO - 02": "#9932CC",
@@ -26,10 +24,8 @@ anillo_colors = {
         "ANILLO - 08": "#273746",
     }
 
-#app.layout = html.Div([
 layout = html.Div([
     html.Div([
-        dcc.Store(id="store-selected-nodes", data=[]),  #  Almacena nodos seleccionados en memoria
         dcc.Dropdown(
             options=[{'label': dep, 'value': dep} for dep in df['DEPARTAMENTO'].unique()],
             value='HUANCAVELICA',  # Valor inicial
@@ -46,7 +42,7 @@ layout = html.Div([
                     {'label': 'ANILLO', 'value': 'ANILLO'}],
             value='ID',
             id='type_selection',
-            className="btn-group",  # Agrega la clase CSS
+            className="btn-group",
             inputClassName="btn-check",
             labelClassName="btn btn-outline-dark",
             labelCheckedClassName="active",
@@ -56,8 +52,8 @@ layout = html.Div([
         
         html.Br(),
         dcc.Dropdown(
-            id='NODO',  # Asignar un ID único
-            multi=True,  # Permite multiples selecciones
+            id='NODO',  
+            multi=True,  
             placeholder="Selecionar nodo...",
             style={
                 'fontSize': '12px',
@@ -65,7 +61,7 @@ layout = html.Div([
             } 
         ),
         html.Hr(),
-        html.Label('IMPACTO EN LA RED:', style={'font-weight': 'bold'}),  # Título
+        html.Label('IMPACTO EN LA RED:', style={'font-weight': 'bold'}),  
         dcc.Markdown(id='column-sums',style={'font-size': '12px'}),
         
         html.Div([
@@ -76,7 +72,7 @@ layout = html.Div([
         dcc.Download(id="download-dataframe_ax-xlsx"),
         dcc.Download(id="download-dataframe_tx-xlsx"),
 
-    ], style={'width': '25%', 'display': 'inline-block','font-family': 'Helvetica'}), 
+    ], style={'width': '25%','height': '100vh', 'display': 'inline-block','font-family': 'Helvetica'}), 
 
 ###############################################
     html.Div([
@@ -147,7 +143,7 @@ def download_excel(n_ax, n_tx, region, nodos, type_selection):
         output.seek(0)
         return None, dcc.send_bytes(output.getvalue(), filename=f'DATOS_TX_{region}.xlsx')
 
-    return None, None  # Si no hay cambios
+    return None, None  
 
 ##################################
 @callback(
@@ -190,22 +186,14 @@ def update_nodo_options(selected_region, selected_type):
 
         return [{'label': value, 'value': value[:11]} for value in filtered_df[selected_type].dropna().unique()]
    
-# Callback para mostrar solo el resultado de la suma de las column
+
 @callback(
     Output('cytoscape-graph', 'elements'),
-    Output('cytoscape-graph', 'stylesheet'),
-    Output('column-sums', 'children'),
     Input('REGION', 'value'), 
-    Input('NODO', 'value'), 
-    Input('type_selection', 'value'),
 )
-def update_graph(selected_region, selected_nodos, selected_type):
-    # Filtrar nodos y enlaces según la región seleccionada
-    
-    filtered_df = df[df['DEPARTAMENTO'] == selected_region] ### CANDIDATO A PONERLO EN LA MEMORIA DEL NAVEGADOR
-    filtered_eg = df_eg[df_eg['DEPARTAMENTO'] == selected_region]### CANDIDATO A PONERLO EN LA MEMORIA DEL NAVEGADOR
-   
-    # Crear nodos y posiciones
+def nodos_edges(selected_region):
+    filtered_df = df[df['DEPARTAMENTO'] == selected_region] 
+    filtered_eg = df_eg[df_eg['DEPARTAMENTO'] == selected_region]
     nodes = [
         {
         "data": {
@@ -221,10 +209,25 @@ def update_graph(selected_region, selected_nodos, selected_type):
         }
         for _, row in filtered_df.iterrows()
     ]
-    # Crear edges (enlaces entre nodos)
-    #edges = [{"data": {"source": s, "target": t,'weight' : w }} for s, t in filtered_eg[['side_A', 'side_B','weight']].values]
-    edges = [{"data": {"source": s, "target": t, 'weight': w }} for s, t, w in filtered_eg[['side_A', 'side_B','weight']].values]
 
+    edges = [{"data": {"source": s, "target": t, 'weight': w }} for s, t, w in filtered_eg[['side_A', 'side_B','weight']].values]
+    
+    return nodes+edges
+
+@callback(
+    #Output('cytoscape-graph', 'elements'),
+    Output('cytoscape-graph', 'stylesheet'),
+    Output('column-sums', 'children'),
+    Input('REGION', 'value'), 
+    Input('NODO', 'value'), 
+    Input('type_selection', 'value'),
+)
+def update_graph(selected_region, selected_nodos, selected_type):
+
+    
+    filtered_df = df[df['DEPARTAMENTO'] == selected_region] ### CANDIDATO A PONERLO EN LA MEMORIA DEL NAVEGADOR
+    filtered_eg = df_eg[df_eg['DEPARTAMENTO'] == selected_region]### CANDIDATO A PONERLO EN LA MEMORIA DEL NAVEGADOR
+   
     # Estilos base
     s_stylesheet = [
         {
@@ -281,10 +284,9 @@ def update_graph(selected_region, selected_nodos, selected_type):
             "style": {"background-color": color}
         })
 
-    # Calcular valores de impacto en la red
 
     if selected_nodos == []:
-        return nodes + edges, s_stylesheet, "SIN NODOS SELECIONADOS"
+        return s_stylesheet, "SIN NODOS SELECIONADOS"
    
     if selected_nodos:
         filtered_df = filtered_df[filtered_df[selected_type].isin(selected_nodos)]
@@ -303,7 +305,6 @@ def update_graph(selected_region, selected_nodos, selected_type):
 
     sum_label = f"{sum_label}  \n\n**NODOS TX:** {n_tx} \n\nNODOS DISTRITALES: {n_dist} \n\n**NODOS AX:** {n_ax}"
 
-    ## Si hay nodos seleccionados, cambiar su color a rojo
     lst_tx= filtered_df['ID'].tolist()
     if selected_nodos:
         for nodo in lst_tx:
@@ -315,9 +316,8 @@ def update_graph(selected_region, selected_nodos, selected_type):
             
             })   
 
-    return nodes + edges, s_stylesheet, sum_label
+    return s_stylesheet, sum_label
 
-# Callback para manejar la selección de nodos, cada vez que se selecione un nodo con un clic se agrergara al Dropdown correspondiente
 
 @callback(
     Output('NODO', 'value'),  
@@ -331,38 +331,25 @@ def update_selected_nodes(tapped_node, selected_nodes):
     if selected_nodes is None:
         selected_nodes = []
 
-    triggered_id = ctx.triggered_id  # Identifica qué elemento activó el callback
+    triggered_id = ctx.triggered_id  
 
     if triggered_id == 'cytoscape-graph' and tapped_node:
-        selected_nodes = set(selected_nodes)  # Convertir en conjunto para evitar duplicados
+        selected_nodes = set(selected_nodes) 
 
-        # 🔹 Si tapped_node es un diccionario, lo convertimos en lista
         if isinstance(tapped_node, dict):
             tapped_node = [tapped_node]
 
-        # 🔹 Iteramos sobre la lista de nodos seleccionados
         for node in tapped_node:
             node_id = node['id']
             if node_id in selected_nodes:
-                selected_nodes.remove(node_id)  # Eliminar si ya está
+                selected_nodes.remove(node_id) 
             else:
-                selected_nodes.add(node_id)  # Agregar si no está
+                selected_nodes.add(node_id) 
 
-        return list(selected_nodes)  # Devolvemos una lista
+        return list(selected_nodes)  
 
-    return selected_nodes  # Si no hay cambios, devolvemos la lista actual
+    return selected_nodes  
 
-
-#####################################
-@callback(
-    Output('store-selected-nodes', 'data'),
-    Input('cytoscape-graph', 'selectedNodeData'),
-    prevent_initial_call=True
-)
-def store_selected_nodes(selected_nodes):
-    if not selected_nodes:
-        return []  # Si no hay selección, almacena una lista vacía
-    return [node['id'] for node in selected_nodes]  # Guarda los IDs de los nodos seleccionados    
 
 
 
