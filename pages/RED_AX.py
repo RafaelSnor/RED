@@ -133,7 +133,7 @@ def displayTapNodeData(tapped_node,value_data):
     ]
 
     ####################################################
-  
+    
     if tapped_node:
         list_ax=[]
         lista_de_control=[]
@@ -177,14 +177,15 @@ def displayTapNodeData(tapped_node,value_data):
     #GENERA UNA TABLA CUANDO COINCIDE EL NODO CON LA VLAN DE ALGUN CLIENTE.
 
     if tapped_node is None:
-        return "Haz clic en un nodo para ver más detalles." ,base_stylesheet,"" # Mensaje predeterminado si no hay nodo seleccionado
+        return "Haz clic en un nodo para ver más detalles." ,base_stylesheet,""# Mensaje predeterminado si no hay nodo seleccionado
 
-    node_id = tapped_node.get('id')  
- 
+    node_id = tapped_node.get('id')  # Obtener el ID del nodo clickeado
+
+    #conteo_iao = df_ax[df_ax['NODO'].isin(list_ax)]['IAO'].sum()
     vlan =df_vip[df_vip['Codigo NODO COBERTURADOR'].isin(list_ax)][['VLAN', 'Codigo NODO COBERTURADOR', 'INTERFACE','VALIDACION']]
- 
-    if vlan.empty:
-        return f"NODO {tapped_node['label'][:7]}, sin Vlan's de Clientes disponibles.", base_stylesheet,""
+    conteo_iao = df_ax[df_ax['NODO'].isin(list_ax)]['IAO'].sum()
+    #if vlan.empty:
+       # return f"NODO {tapped_node['label'][:7]}, sin Vlan's de Clientes disponibles.", base_stylesheet,f'IMPACTO: {conteo_iao} IAO'
 
     # Crear la tabla HTML a partir de vlan_info
 
@@ -202,12 +203,10 @@ def displayTapNodeData(tapped_node,value_data):
         )
  
     conteo = vlan['VALIDACION'].value_counts()
-    conteo_iao = df_ax[df_ax['NODO'].isin(list_ax)]['IAO'].sum()
 
-    #print(conteo_iao)
     resultado = ", ".join([f"{v} {k}" for k, v in conteo.items()])
  
-    return tabla, base_stylesheet, f'IMPACTO: {resultado}, {conteo_iao} IAO'
+    return tabla, base_stylesheet, f'IMPACTO: {resultado} {conteo_iao} IAO'
  
 
 @callback(
@@ -226,7 +225,7 @@ def update_cytoscape_elements(selected_node, type_selec):
 
     elif type_selec == "ID":
         nodo_d = df_d.loc[df_d['SOURCE'] == selected_node, 'ID'].values
-        if nodo_d.size == 0:  
+        if nodo_d.size == 0:  # Verifica si nodo_d está vacío
             nodo_d = df_d.loc[df_d['TANGET'] == selected_node, 'ID'].values
             if nodo_d.size == 0:    
                 return [], {'name': 'breadthfirst', 'directed': True}  # Retorna un grafo vacío
@@ -235,8 +234,8 @@ def update_cytoscape_elements(selected_node, type_selec):
 
     elif type_selec == "VLAN":
         nodo_d = df_vip.loc[df_vip['Codigo NODO COBERTURADOR'] == selected_node, 'DISTRITAL'].values
-        if nodo_d.size == 0:  # Verifica si nodo_d está vacío
-            return [], {'name': 'breadthfirst', 'directed': True}  # Retorna un grafo vacío
+        if nodo_d.size == 0:  
+            return [], {'name': 'breadthfirst', 'directed': True}  
         root = nodo_d[0]
    
         dependents = df_d[df_d['ID'] == root]
