@@ -9,7 +9,7 @@ url='https://docs.google.com/spreadsheets/d/e/2PACX-1vTU0SdQdcULvuqk9abcnzdW609d
 sheets = pd.read_excel(url, sheet_name=['BD', 'EDGES', 'N_AX'])  
 df = sheets['BD']
 df_eg = sheets['EDGES']
-df_ax = sheets['N_AX'].loc[:, 'A':'F']
+df_ax = sheets['N_AX']
 
 register_page(__name__, path="/RED_TX")
 
