@@ -1,40 +1,48 @@
 from dash import Dash, dcc, html, Input, Output, callback, dash_table, register_page
 import dash_cytoscape as cyto
+import dash_bootstrap_components as dbc
 import pandas as pd
 
-# Cargar los datos desde Excel
-#url='https://docs.google.com/spreadsheets/d/e/2PACX-1vS6jR4F7HMDXcVexiJmZ9plXuNX3ZO0yC4F8TwKf3eSr20GgCaMITByNdiFjmSqgA/pub?output=xlsx'
 url='https://docs.google.com/spreadsheets/d/e/2PACX-1vTU0SdQdcULvuqk9abcnzdW609dHXszo-JEfvp0RkQAyR1maTr5m9eINsli_5iGKQ/pub?output=xlsx'
 
-df_d  = pd.read_excel(url, sheet_name='DEPENDIENTE')
-df_vip =pd.read_excel(url, sheet_name='CLIENTES')
+sheets = pd.read_excel(url, sheet_name=['DEPENDIENTE', 'CLIENTES', 'IAO'])  
+df_d = sheets['DEPENDIENTE']
+df_vip = sheets['CLIENTES']
+df_ax = sheets['IAO']
+
+
 
 register_page(__name__, path="/RED_AX")
 layout = html.Div([
     html.Div([
-        dcc.RadioItems(
+        dbc.RadioItems(
             options=[{'label': 'VLAN', 'value': 'VLAN'},
                      {'label': 'ID', 'value': 'ID'},
                      {'label': 'DISTRITAL', 'value': 'DISTRITAL'}],
             value='DISTRITAL', 
             inline=True, 
-            id='type_selection'
+            id='type_selection',
+            className="radio-group",  # Agrega la clase CSS
+            inputClassName="btn-check",
+            labelClassName="btn btn-outline-dark",
+            labelCheckedClassName="active",
         ),
 
-        dcc.Dropdown(id='selector-ax'),
+        dcc.Dropdown(id='selector-ax',className="rounded-3 shadow-sm",
+            style={'fontSize': '12px'} ),
 
         html.P(id='cytoscape-tapNodeData-output'),
         html.Pre(id='cytoscape-tapNodeData'),
         
         dcc.Markdown(id='impacto_ax'),
-    ], style={'width': '20%', 'display': 'inline-block','font-family': 'monospace'}),
+    ], style={'width': '24%','height': '100vh', 'display': 'inline-block','font-family': 'Helvetica'},className="mi-div"),
 
     html.Div([
         cyto.Cytoscape(
         id='cytoscape-graph-ax',
-        style={'width': '100%', 'height': '600px'},
+        style={'width': '100%', 'height': '90vh', 'background-color': '#f0f0f0', 'position': 'relative'},
         maxZoom=3,
-        minZoom=0.5
+        minZoom=0.1
         ,
         stylesheet=[
             {
@@ -59,7 +67,7 @@ layout = html.Div([
             }
         ]
     )    
-    ], style={'width': '80%' ,'display': 'inline-block', 'font-family': 'monospace', 'float': 'right'})
+    ], style={'width': '74%' ,'height': '100vh','display': 'inline-block', 'font-family': 'monospace', 'float': 'right'},className="mi-div")
     
 ])
 
@@ -106,6 +114,11 @@ def displayTapNodeData(tapped_node,value_data):
                 "text-halign": "center",
                 "width": "30px",
                 "height": "30px",
+                "font-size": "15px",
+                "white-space": "pre",
+                "text-wrap": "wrap",
+                'border-width': 1,
+                
                 
             }
         },
@@ -120,8 +133,7 @@ def displayTapNodeData(tapped_node,value_data):
     ]
 
     ####################################################
-    #  Cambiar el color del nodo selecionado y los actualiza
-    
+  
     if tapped_node:
         list_ax=[]
         lista_de_control=[]
@@ -167,12 +179,10 @@ def displayTapNodeData(tapped_node,value_data):
     if tapped_node is None:
         return "Haz clic en un nodo para ver más detalles." ,base_stylesheet,"" # Mensaje predeterminado si no hay nodo seleccionado
 
-    node_id = tapped_node.get('id')  # Obtener el ID del nodo clickeado
-    #print(list_ax)
+    node_id = tapped_node.get('id')  
+ 
     vlan =df_vip[df_vip['Codigo NODO COBERTURADOR'].isin(list_ax)][['VLAN', 'Codigo NODO COBERTURADOR', 'INTERFACE','VALIDACION']]
-    #print(df_vip)
-    #vlan =df_ipt[df_ipt['Codigo POP Coberturador'].isin(list_ax)][['VLAN', 'Codigo POP Coberturador', 'INTERFACE','CLIENTE']]
-    
+ 
     if vlan.empty:
         return f"NODO {tapped_node['label'][:7]}, sin Vlan's de Clientes disponibles.", base_stylesheet,""
 
@@ -192,9 +202,12 @@ def displayTapNodeData(tapped_node,value_data):
         )
  
     conteo = vlan['VALIDACION'].value_counts()
+    conteo_iao = df_ax[df_ax['NODO'].isin(list_ax)]['IAO'].sum()
+
+    #print(conteo_iao)
     resultado = ", ".join([f"{v} {k}" for k, v in conteo.items()])
-    #print(resultado)
-    return tabla, base_stylesheet, f'IMPACTO: {resultado}'
+ 
+    return tabla, base_stylesheet, f'IMPACTO: {resultado}, {conteo_iao} IAO'
  
 
 @callback(
@@ -204,7 +217,7 @@ def displayTapNodeData(tapped_node,value_data):
     Input('type_selection', 'value'),
 )
 def update_cytoscape_elements(selected_node, type_selec):
-    if not selected_node:  # Si no se selecciona nada
+    if not selected_node:  
         return [], {'name': 'breadthfirst', 'directed': True}
 
     if type_selec == "DISTRITAL":
@@ -213,7 +226,7 @@ def update_cytoscape_elements(selected_node, type_selec):
 
     elif type_selec == "ID":
         nodo_d = df_d.loc[df_d['SOURCE'] == selected_node, 'ID'].values
-        if nodo_d.size == 0:  # Verifica si nodo_d está vacío
+        if nodo_d.size == 0:  
             nodo_d = df_d.loc[df_d['TANGET'] == selected_node, 'ID'].values
             if nodo_d.size == 0:    
                 return [], {'name': 'breadthfirst', 'directed': True}  # Retorna un grafo vacío
@@ -221,15 +234,16 @@ def update_cytoscape_elements(selected_node, type_selec):
         dependents = df_d[df_d['ID'] == root]
 
     elif type_selec == "VLAN":
-        nodo_d = df_ipt.loc[df_ipt['Codigo POP Coberturador'] == selected_node, 'Codigo NODO RAIZ'].values
+        nodo_d = df_vip.loc[df_vip['Codigo NODO COBERTURADOR'] == selected_node, 'DISTRITAL'].values
         if nodo_d.size == 0:  # Verifica si nodo_d está vacío
             return [], {'name': 'breadthfirst', 'directed': True}  # Retorna un grafo vacío
         root = nodo_d[0]
    
         dependents = df_d[df_d['ID'] == root]
 
-    # Combina y limpia los datos de nodos
+
     concate = pd.concat([dependents['SOURCE'], dependents['TANGET']])
+    
     dependent_nodes = [{"data": {"id": dep, "label": f"{dep}-A01"}} for dep in concate.dropna().unique()]
     edges = [{"data": {"source": s, "target": t}} for s, t in dependents[['SOURCE', 'TANGET']].dropna().values]
 
