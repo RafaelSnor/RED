@@ -47,7 +47,7 @@ def toggle_offcanvas(n, is_open):
 def keep_awake():
     while True:
         try:
-            requests.get("https://red-yk09.onrender.com")  # Reemplaza con tu URL
+            requests.get("www.red-yk09.onrender.com")  # Reemplaza con tu URL
             print("Keep-alive ejecutado")
         except Exception as e:
             print("Error en keep-alive:", e)
