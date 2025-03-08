@@ -51,7 +51,7 @@ def keep_awake():
             print("Keep-alive ejecutado")
         except Exception as e:
             print("Error en keep-alive:", e)
-        time.sleep(600)  # Cada 10 minutos
+        time.sleep(300)  # Cada 10 minutos
 
 if __name__ == '__main__':
     if not app.debug:  # Solo ejecuta el keep-alive en producción
