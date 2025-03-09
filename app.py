@@ -56,5 +56,5 @@ def keep_awake():
 if __name__ == '__main__':
     if not app.debug:  # Solo ejecuta el keep-alive en producción
         threading.Thread(target=keep_awake, daemon=True).start()
-    app.run(debug=True)
-    #app.run(debug=True, dev_tools_ui=False, dev_tools_props_check=False)
+
+    app.run(debug=True, dev_tools_ui=False, dev_tools_props_check=False)
