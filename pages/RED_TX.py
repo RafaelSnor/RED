@@ -12,7 +12,6 @@ df_eg = sheets['EDGES']
 df_ax = sheets['N_AX']
 
 register_page(__name__, path="/RED_TX")
-
 anillo_colors = {
         "ANILLO - 01": "#f39c12",
         "ANILLO - 02": "#9932CC",
@@ -24,8 +23,10 @@ anillo_colors = {
         "ANILLO - 08": "#273746",
     }
 
+#app.layout = html.Div([
 layout = html.Div([
     html.Div([
+        dcc.Store(id="store-selected-nodes", data=[]),  #  Almacena nodos seleccionados en memoria
         dcc.Dropdown(
             options=[{'label': dep, 'value': dep} for dep in df['DEPARTAMENTO'].unique()],
             value='HUANCAVELICA',  # Valor inicial
@@ -42,7 +43,7 @@ layout = html.Div([
                     {'label': 'ANILLO', 'value': 'ANILLO'}],
             value='ID',
             id='type_selection',
-            className="btn-group",
+            className="btn-group", 
             inputClassName="btn-check",
             labelClassName="btn btn-outline-dark",
             labelCheckedClassName="active",
@@ -61,7 +62,7 @@ layout = html.Div([
             } 
         ),
         html.Hr(),
-        html.Label('IMPACTO EN LA RED:', style={'font-weight': 'bold'}),  
+        html.Label('IMPACTO EN LA RED:', style={'font-weight': 'bold'}), 
         dcc.Markdown(id='column-sums',style={'font-size': '12px'}),
         
         html.Div([
@@ -72,7 +73,7 @@ layout = html.Div([
         dcc.Download(id="download-dataframe_ax-xlsx"),
         dcc.Download(id="download-dataframe_tx-xlsx"),
 
-    ], style={'width': '25%','height': '100vh', 'display': 'inline-block','font-family': 'Helvetica'}), 
+    ], style={'width': '24%','height': '100vh', 'display': 'inline-block','font-family': 'Helvetica'},className="mi-div"), 
 
 ###############################################
     html.Div([
@@ -80,19 +81,19 @@ layout = html.Div([
         cyto.Cytoscape(
             id='cytoscape-graph',
             responsive=True,
-            style={'width': '100%', 'height': '550px', 'background-color': '#f0f0f0', 'position': 'relative'},
+            style={'width': '100%', 'height': '90vh', 'background-color': '#f0f0f0', 'position': 'relative'},
             layout={'name': 'preset', 'fit': True},
             maxZoom=3,
             minZoom=0.15,
-            boxSelectionEnabled=True,  #  Habilita selección con el mouse
+            boxSelectionEnabled=True,  
  
         ),
         html.Div(
             id='lst_anillos',
             className='leyenda_anillos',
         )
-    ], style={'position': 'relative', 'width': '100%', 'height': '550px'})  # Se asegura que el div padre tenga posición relativa
-    ], style={'width': '75%' ,'display': 'inline-block', 'font-family': 'monospace', 'float': 'right'})
+    ], style={'position': 'relative', 'width': '100%', 'height': '100vh'})  
+    ], style={'width': '74%' ,'height': '100vh','display': 'inline-block', 'font-family': 'monospace', 'float': 'right'},className="mi-div")
 ])
 
 ########GENERADOR DE EXCELs
@@ -107,10 +108,9 @@ layout = html.Div([
     prevent_initial_call=True 
 )
 def download_excel(n_ax, n_tx, region, nodos, type_selection):
-    triggered_id = ctx.triggered_id  # Identifica qué botón se presionó
-
+    triggered_id = ctx.triggered_id  
     if not region or not nodos:
-        return None, None  # No genera el archivo si no hay datos
+        return None, None  
 
     df_dw = df[df['DEPARTAMENTO'] == region]
 
@@ -143,7 +143,7 @@ def download_excel(n_ax, n_tx, region, nodos, type_selection):
         output.seek(0)
         return None, dcc.send_bytes(output.getvalue(), filename=f'DATOS_TX_{region}.xlsx')
 
-    return None, None  
+    return None, None 
 
 ##################################
 @callback(
@@ -158,7 +158,7 @@ def lista_de_anillos(selected_region):
     legend_elements = [html.Strong("Leyenda:",style={'font-size': '12px'})]
 
     for anillo in filtered_anillos:
-        color = anillo_colors.get(anillo, "#000000")  # Negro por defecto
+        color = anillo_colors.get(anillo, "#000000") 
         legend_elements.append(
             html.Div([
                 html.Span(style={'display': 'inline-block', 'width': '12px', 'height': '12px', 
@@ -175,10 +175,9 @@ def lista_de_anillos(selected_region):
     [Input('REGION', 'value'), Input('type_selection', 'value')]
 )
 def update_nodo_options(selected_region, selected_type):
-    # Filtrar según el departamento seleccionado
+
     filtered_df = df[df['DEPARTAMENTO'] == selected_region]
 
-    # Filtrar según el tipo seleccionado (CODIGO o ANILLO), VALORES UNICOS
     if selected_type=="ID":
         return [{'label': cod, 'value': id} for cod, id in filtered_df[['CODIGO', 'ID']].values]
 
@@ -186,6 +185,8 @@ def update_nodo_options(selected_region, selected_type):
 
         return [{'label': value, 'value': value[:11]} for value in filtered_df[selected_type].dropna().unique()]
    
+
+
 
 @callback(
     Output('cytoscape-graph', 'elements'),
@@ -215,7 +216,6 @@ def nodos_edges(selected_region):
     return nodes+edges
 
 @callback(
-    #Output('cytoscape-graph', 'elements'),
     Output('cytoscape-graph', 'stylesheet'),
     Output('column-sums', 'children'),
     Input('REGION', 'value'), 
@@ -224,10 +224,10 @@ def nodos_edges(selected_region):
 )
 def update_graph(selected_region, selected_nodos, selected_type):
 
-    
     filtered_df = df[df['DEPARTAMENTO'] == selected_region] ### CANDIDATO A PONERLO EN LA MEMORIA DEL NAVEGADOR
     filtered_eg = df_eg[df_eg['DEPARTAMENTO'] == selected_region]### CANDIDATO A PONERLO EN LA MEMORIA DEL NAVEGADOR
    
+
     # Estilos base
     s_stylesheet = [
         {
@@ -271,7 +271,7 @@ def update_graph(selected_region, selected_nodos, selected_type):
         'style': {
             'shape': 'hexagon',
             'border-width': 8,  # Borde grueso
-            'border-color': 'rgba(0, 0, 0, 0.5)',  # Borde semi-transparente
+            'border-color': 'rgba(0, 0, 0, 0.5)',  
             'border-opacity': 0.3,
         
         } 
@@ -305,6 +305,7 @@ def update_graph(selected_region, selected_nodos, selected_type):
 
     sum_label = f"{sum_label}  \n\n**NODOS TX:** {n_tx} \n\nNODOS DISTRITALES: {n_dist} \n\n**NODOS AX:** {n_ax}"
 
+
     lst_tx= filtered_df['ID'].tolist()
     if selected_nodos:
         for nodo in lst_tx:
@@ -331,14 +332,16 @@ def update_selected_nodes(tapped_node, selected_nodes):
     if selected_nodes is None:
         selected_nodes = []
 
-    triggered_id = ctx.triggered_id  
+    triggered_id = ctx.triggered_id 
 
     if triggered_id == 'cytoscape-graph' and tapped_node:
-        selected_nodes = set(selected_nodes) 
+        selected_nodes = set(selected_nodes)  
 
+   
         if isinstance(tapped_node, dict):
             tapped_node = [tapped_node]
 
+      
         for node in tapped_node:
             node_id = node['id']
             if node_id in selected_nodes:
@@ -346,9 +349,23 @@ def update_selected_nodes(tapped_node, selected_nodes):
             else:
                 selected_nodes.add(node_id) 
 
-        return list(selected_nodes)  
+        return list(selected_nodes)
 
-    return selected_nodes  
+    return selected_nodes 
+
+
+#####################################
+@callback(
+    Output('store-selected-nodes', 'data'),
+    Input('cytoscape-graph', 'selectedNodeData'),
+    prevent_initial_call=True
+)
+def store_selected_nodes(selected_nodes):
+    if not selected_nodes:
+        return []  
+    return [node['id'] for node in selected_nodes]      
+
+
 
 
 
