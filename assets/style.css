@@ -1,31 +1,43 @@
-/* restyle radio items */
-.radio-group .form-check {
-  padding-left: 0;
+.radio-group {
+  display: flex;
+  justify-content: center; /* Centra horizontalmente los botones */
+  align-items: center; /* Alinea verticalmente si es necesario */
+  gap: 0px; /* Pequeño espacio entre los botones */
 }
 
-.radio-group .btn-group > .form-check:not(:last-child) > .btn {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  border-radius: 10px;
+.radio-group .btn {
+  border-radius: 0;
+  margin: 0;
+  padding: 5px 10px;
+  font-size: 10px;
 }
 
-.radio-group .btn-group > .form-check:not(:first-child) > .btn {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  margin-left: -1px;
-  border-radius: 10px;
+.radio-group .btn:first-child {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
 }
+
+.radio-group .btn:last-child {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.radio-group .btn-check:checked + .btn {
+  background-color: black;
+  color: white;
+}
+
 
 .small-radio {
     font-size: 8px;   /* Reducir el tamaño del texto */
-    padding: 2px 6px;  /* Reducir el espacio interno */
+    padding: 2px 4px;  /* Reducir el espacio interno */
     margin-right: -1px; /* Juntar los botones sin espacio */
     height: 25px; /* Ajustar la altura */
     line-height: 1; /* Centrar el texto */
     border-radius: 10px; /* Redondear esquinas */
 }
 
-/* estilo de botton*/
+/* estilo de botton
 .botones{
 	font-size: 12px;
 	border-radius: 10px;
@@ -42,4 +54,16 @@
   border-radius: 5px;
   box-shadow: 0px 0px 5px rgba(0,0,0,03);
   Index: 10;  /*  Asegura que esté sobre el gráfico*/
+}
+
+
+/*############ primer div*/
+
+.mi-div {
+    border: 2px solid #2ecc71;  /* Verde */
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3); /* Sombra */
+    padding: 15px;
+    margin: 5px;
+    border-radius: 10px;
+	
 }
