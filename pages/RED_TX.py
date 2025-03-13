@@ -306,7 +306,7 @@ def update_graph(selected_region, selected_nodos, selected_type):
     if not sum_label:
         sum_label = "Nodo/s sin clientes o IAOs dependientes"
 
-    sum_label = f"{sum_label}  \n\n**NODOS TX:** {n_tx} \n\nNODOS DISTRITALES: {n_dist} \n\n**NODOS AX:** {n_ax} \n\nPRUEBA DE TOTAL {total_cliente}"
+    sum_label = f"{sum_label}  \n\n**NODOS TX:** {n_tx} \n\nNODOS DISTRITALES: {n_dist} \n\n**NODOS AX:** {n_ax} \n\nPRUEBA DE TOTAL {total_cliente}   -- {cliente_select}"
 
 
     lst_tx= filtered_df['ID'].tolist()
