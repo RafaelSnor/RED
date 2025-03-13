@@ -64,6 +64,7 @@ layout = html.Div([
         html.Hr(),
         html.Label('IMPACTO EN LA RED:', style={'font-weight': 'bold'}), 
         dcc.Markdown(id='column-sums',style={'font-size': '12px'}),
+        dcc.Markdown("HOLA ME VES?",id='client_porcentaje',style={'font-size': '12px'}),
         
         html.Div([
             dbc.Button("Download Excel_AX", color="success", className="me-2 botones", id="btn_ax_xlsx"),
