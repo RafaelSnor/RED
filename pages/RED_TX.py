@@ -218,6 +218,7 @@ def nodos_edges(selected_region):
 @callback(
     Output('cytoscape-graph', 'stylesheet'),
     Output('column-sums', 'children'),
+    Output('client_porcentaje', 'children'),        
     Input('REGION', 'value'),  
     Input('NODO', 'value'), 
     Input('type_selection', 'value'),
@@ -287,7 +288,7 @@ def update_graph(selected_region, selected_nodos, selected_type):
 
 
     if selected_nodos == []:
-        return s_stylesheet, "SIN NODOS SELECIONADOS"
+        return s_stylesheet, "SIN NODOS SELECIONADOS",""
    
     if selected_nodos:
         filtered_df = filtered_df[filtered_df[selected_type].isin(selected_nodos)]
@@ -299,6 +300,9 @@ def update_graph(selected_region, selected_nodos, selected_type):
 
     sums = numeric_cols.sum()
     non_zero_sums = sums[sums != 0].astype(int)
+
+        ###################
+    cliente_select= non_zero_sums.sum().sum()
     sum_label = ", ".join([f"{value} {column}" for column, value in non_zero_sums.items()])
 
     if not sum_label:
@@ -318,7 +322,7 @@ def update_graph(selected_region, selected_nodos, selected_type):
             
             })   
 
-    return s_stylesheet, sum_label
+    return s_stylesheet, sum_label, cliente_select
 
 
 @callback(
