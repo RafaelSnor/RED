@@ -166,8 +166,7 @@ def lista_de_anillos(selected_region):
                 html.Span(anillo, style={'font-size': '11px'}),                 
             ], style={'display': 'flex', 'alignItems': 'center'})
         )
-    
-        
+       
     return legend_elements
 
 @callback(
@@ -218,7 +217,7 @@ def nodos_edges(selected_region):
 @callback(
     Output('cytoscape-graph', 'stylesheet'),
     Output('column-sums', 'children'),
-    Input('REGION', 'value'), 
+    Input('REGION', 'value'),  
     Input('NODO', 'value'), 
     Input('type_selection', 'value'),
 )
@@ -226,6 +225,7 @@ def update_graph(selected_region, selected_nodos, selected_type):
 
     filtered_df = df[df['DEPARTAMENTO'] == selected_region] ### CANDIDATO A PONERLO EN LA MEMORIA DEL NAVEGADOR
     filtered_eg = df_eg[df_eg['DEPARTAMENTO'] == selected_region]### CANDIDATO A PONERLO EN LA MEMORIA DEL NAVEGADOR
+    total_cliente = filtered_df.iloc[:, 7:16].sum().sum()
    
 
     # Estilos base
@@ -303,7 +303,7 @@ def update_graph(selected_region, selected_nodos, selected_type):
     if not sum_label:
         sum_label = "Nodo/s sin clientes o IAOs dependientes"
 
-    sum_label = f"{sum_label}  \n\n**NODOS TX:** {n_tx} \n\nNODOS DISTRITALES: {n_dist} \n\n**NODOS AX:** {n_ax}"
+    sum_label = f"{sum_label}  \n\n**NODOS TX:** {n_tx} \n\nNODOS DISTRITALES: {n_dist} \n\n**NODOS AX:** {n_ax}   PRUEBA DE TOTAL {total_cliente}"
 
 
     lst_tx= filtered_df['ID'].tolist()
