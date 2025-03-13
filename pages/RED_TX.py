@@ -217,8 +217,7 @@ def nodos_edges(selected_region):
 
 @callback(
     Output('cytoscape-graph', 'stylesheet'),
-    Output('column-sums', 'children'),
-    Output('client_porcentaje', 'children'),        
+    Output('column-sums', 'children'),      
     Input('REGION', 'value'),  
     Input('NODO', 'value'), 
     Input('type_selection', 'value'),
@@ -288,7 +287,7 @@ def update_graph(selected_region, selected_nodos, selected_type):
 
 
     if selected_nodos == []:
-        return s_stylesheet, "SIN NODOS SELECIONADOS",""
+        return s_stylesheet, "SIN NODOS SELECIONADOS"
    
     if selected_nodos:
         filtered_df = filtered_df[filtered_df[selected_type].isin(selected_nodos)]
@@ -308,7 +307,7 @@ def update_graph(selected_region, selected_nodos, selected_type):
     if not sum_label:
         sum_label = "Nodo/s sin clientes o IAOs dependientes"
 
-    sum_label = f"{sum_label}  \n\n**NODOS TX:** {n_tx} \n\nNODOS DISTRITALES: {n_dist} \n\n**NODOS AX:** {n_ax}   PRUEBA DE TOTAL {total_cliente}  {cliente_select}"
+    sum_label = f"{sum_label}  \n\n**NODOS TX:** {n_tx} \n\nNODOS DISTRITALES: {n_dist} \n\n**NODOS AX:** {n_ax} \n\nPRUEBA DE TOTAL {total_cliente}"
 
 
     lst_tx= filtered_df['ID'].tolist()
@@ -322,7 +321,7 @@ def update_graph(selected_region, selected_nodos, selected_type):
             
             })   
 
-    return s_stylesheet, sum_label, cliente_select
+    return s_stylesheet, sum_label
 
 
 @callback(
