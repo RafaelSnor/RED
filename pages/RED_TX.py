@@ -258,7 +258,7 @@ def update_graph(selected_region, selected_nodos, selected_type):
         {
                 'selector': '[weight = 300]',
                 'style': {
-                    'label': "ENLACE MW IPT",
+                    'label': 'ENLACE RDFN',
                     'mid-source-arrow-color': 'black',
                     'mid-source-arrow-shape': 'diamond',
                     'mid-source-arrow-fill': 'hollow',
@@ -270,6 +270,7 @@ def update_graph(selected_region, selected_nodos, selected_type):
          {
                 'selector': '[weight = 40]',
                 'style': {
+                    'label': 'ENLACE MW IPT',
                     'mid-source-arrow-color': 'blue',
                     'mid-source-arrow-shape': 'diamond',
                     'mid-source-arrow-fill': 'hollow',
