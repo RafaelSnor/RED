@@ -273,6 +273,7 @@ def update_graph(selected_region, selected_nodos, selected_type):
                     'label': 'ENLACE MW IPT',
                     'source-arrow-color': 'blue',
                     'source-arrow-shape': 'triangle',
+                    'arrow-scale': 4,
                     'line-color': 'blue'
                     
                 }
