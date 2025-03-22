@@ -273,10 +273,10 @@ def update_graph(selected_region, selected_nodos, selected_type):
                 'selector': '[weight = 40]',
                 'style': {
                         'label': 'ENLACE MW IPT',
-                        'target-arrow-color': 'black',  # Flecha en el nodo destino (B)
+                        'target-arrow-color': 'blue',  # Flecha en el nodo destino (B)
                         'target-arrow-shape': 'triangle',
                         'curve-style': 'bezier',
-                        'arrow-scale': 4,
+                        'arrow-scale': 2,
                         'line-color': 'blue',
                         'text-rotation': 'autorotate',  # Alinea el texto con el edge
                         'text-margin-y': '-10',  # Ajusta la posición vertical si es necesario
