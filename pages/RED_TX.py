@@ -297,6 +297,18 @@ def update_graph(selected_region, selected_nodos, selected_type):
             'border-opacity': 0.3,
         
         } 
+
+                 {
+        'selector': '.INTERCONEXION',
+        'style': {
+            "background-color": "transparent",  # Permite ver la transparencia
+            "background-image": "/assets/Ant.png",  # Imagen PNG con transparencia
+            "background-fit": "contain",  # Ajusta sin recortar
+            "background-opacity": 1,  # Asegura que la imagen se vea
+            
+        
+        } 
+                         
         }
     ]
   
