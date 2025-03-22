@@ -258,7 +258,7 @@ def update_graph(selected_region, selected_nodos, selected_type):
         {
                 'selector': '[weight = 300]',
                 'style': {
-                    'label': 'ENLACE RDFN',
+                    #'label': 'ENLACE RDFN',
                     'mid-source-arrow-color': 'black',
                     'mid-source-arrow-shape': 'diamond',
                     'mid-source-arrow-fill': 'hollow',
