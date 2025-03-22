@@ -277,7 +277,7 @@ def update_graph(selected_region, selected_nodos, selected_type):
                         'target-arrow-shape': 'triangle',
                         'curve-style': 'bezier',
                         'line-style': 'dashed',
-                        'arrow-scale': 2,
+                        'arrow-scale': 1,
                         'line-color': 'blue',
                         'text-rotation': 'autorotate',  # Alinea el texto con el edge
                         'text-margin-y': '-10',  # Ajusta la posición vertical si es necesario
