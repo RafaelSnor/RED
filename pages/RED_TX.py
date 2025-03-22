@@ -296,7 +296,8 @@ def update_graph(selected_region, selected_nodos, selected_type):
             'border-color': 'rgba(0, 0, 0, 0.5)',  
             'border-opacity': 0.3,
         
-        } 
+                } 
+         },
 
                  {
         'selector': '.INTERCONEXION',
@@ -309,7 +310,7 @@ def update_graph(selected_region, selected_nodos, selected_type):
         
         } 
                          
-        }
+        },
     ]
   
     for anillo, color in anillo_colors.items():
