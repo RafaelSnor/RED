@@ -262,6 +262,8 @@ def update_graph(selected_region, selected_nodos, selected_type):
                     'mid-source-arrow-color': 'black',
                     'mid-source-arrow-shape': 'diamond',
                     'mid-source-arrow-fill': 'hollow',
+                    'text-rotation': 'autorotate',  # Alinea el texto con el edge
+                    'text-margin-y': '-10',  
                     'line-style': 'dashed',
                     
                 }
@@ -271,8 +273,9 @@ def update_graph(selected_region, selected_nodos, selected_type):
                 'selector': '[weight = 40]',
                 'style': {
                         'label': 'ENLACE MW IPT',
-                        'source-arrow-color': 'black',
-                        'source-arrow-shape': 'triangle',
+                        'target-arrow-color': 'black',  # Flecha en el nodo destino (B)
+                        'target-arrow-shape': 'triangle',
+                    
                         'arrow-scale': 4,
                         'line-color': 'blue',
                         'text-rotation': 'autorotate',  # Alinea el texto con el edge
