@@ -267,20 +267,22 @@ def update_graph(selected_region, selected_nodos, selected_type):
                 }
         },
 
-        'style': {
-                'label': 'ENLACE MW IPT',
-                'source-arrow-color': 'black',
-                'source-arrow-shape': 'triangle',
-                'arrow-scale': 4,
-                'line-color': 'blue',
-                'text-rotation': 'autorotate',  # Alinea el texto con el edge
-                'text-margin-y': '-10',  # Ajusta la posición vertical si es necesario
-                'font-size': '12px',  # Tamaño del texto
-                'color': 'black',  # Color del texto
-                'font-weight': 'bold',
-    }
+        {
+                'selector': '[weight = 300]',
+                'style': {
+                        'label': 'ENLACE MW IPT',
+                        'source-arrow-color': 'black',
+                        'source-arrow-shape': 'triangle',
+                        'arrow-scale': 4,
+                        'line-color': 'blue',
+                        'text-rotation': 'autorotate',  # Alinea el texto con el edge
+                        'text-margin-y': '-10',  # Ajusta la posición vertical si es necesario
+                        'font-size': '12px',  # Tamaño del texto
+                        'color': 'black',  # Color del texto
+                        'font-weight': 'bold',
+    
+               }
         },
-
             
         {
         'selector': '.AGREGADOR',
