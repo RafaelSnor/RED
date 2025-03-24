@@ -9,30 +9,24 @@ app = Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.LUX])
 server = app.server  # Necesario para Render
 
 app.layout = dbc.Container([
-     dbc.Button("☰ Menú", id="open-offcanvas", n_clicks=0, className="mb-2"),
-     
-     dbc.Offcanvas(
-         [
-             dbc.Nav(
-               [
-                     dbc.NavLink("RED AX", href="/RED_AX", active="exact"),
-                     dbc.NavLink("RED TX", href="/RED_TX", active="exact"),
-                     #dbc.NavLink("RED TX TEST", href="/RED_TX_TES", active="exact"),
-                     
-                 ],
-                 vertical=True,
-                 pills=True,
-             )
-          ],
-         id="offcanvas-menu",
-         title="Menú",
-         is_open=False,
-         placement="start",
-       ),
-
-  html.Br(),
-     page_container  # Contenedor de las páginas dinámicas
- ], fluid=True,style={'background-color': '#f0f0f0'})
+    dbc.DropdownMenu(
+    label="☰ Menú",
+    direction="end",
+    children=[
+        dbc.Nav(
+                [
+                    dbc.NavLink("RED AX", href="/RED_AX", active="exact"),
+                    dbc.NavLink("RED TX", href="/RED_TX", active="exact"),
+                    #dbc.NavLink("RED TX TEST", href="/RED_TX_TES", active="exact"),
+                    
+                ],
+                vertical=True,
+                pills=True,
+            )
+    ],
+    ),
+    page_container  # Contenedor de las páginas dinámicas
+], fluid=True,style={'background-color': '#f0f0f0'} )
  
  # Callback para abrir/cerrar el menú
 @app.callback(
