@@ -364,7 +364,7 @@ def update_graph(selected_region, selected_nodos, selected_type):
     print(lst_tx)
     if 'HC-0016-T01' in lst_tx: # TIENE 10 CLAROS
         alert_state=True
-        alert_msm="Se detecto la seleción de un POP final claro(HC-0016-T01) con 10 CID"
+        alert_msm="Se detecto la seleción de un POP final claro(HC-0016-T01) con 10 CID's"
     else:
         alert_state=False
         alert_msm=""
