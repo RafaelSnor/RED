@@ -1,4 +1,4 @@
-from dash import Dash, dcc, html, Input, Output, callback, ctx, register_page, State
+from dash import Dash, dcc, html, Input, Output, callback, ctx, register_page, State, callback_context
 import dash_cytoscape as cyto
 import pandas as pd
 import dash_bootstrap_components as dbc
@@ -11,7 +11,13 @@ df = sheets['BD']
 df_eg = sheets['EDGES']
 df_ax = sheets['N_AX']
 
+lst_claro=['HC-0016-T01']
+lst_ipt=['HC-0024-T01','AY-0288-T01','CU-0039-T01','AP-0085-T01']
+
 register_page(__name__, path="/RED_TX")
+#app = Dash()
+
+#COLORES asignados para los anillos
 anillo_colors = {
         "ANILLO - 01": "#f39c12",
         "ANILLO - 02": "#9932CC",
@@ -43,7 +49,7 @@ layout = html.Div([
                     {'label': 'ANILLO', 'value': 'ANILLO'}],
             value='ID',
             id='type_selection',
-            className="btn-group", 
+            className="btn-group",  # Agrega la clase CSS
             inputClassName="btn-check",
             labelClassName="btn btn-outline-dark",
             labelCheckedClassName="active",
@@ -53,8 +59,8 @@ layout = html.Div([
         
         html.Br(),
         dcc.Dropdown(
-            id='NODO',  
-            multi=True,  
+            id='NODO',  # Asignar un ID único
+            multi=True,  # Permite multiples selecciones
             placeholder="Selecionar nodo...",
             style={
                 'fontSize': '12px',
@@ -62,9 +68,9 @@ layout = html.Div([
             } 
         ),
         html.Hr(),
-        html.Label('IMPACTO EN LA RED:', style={'font-weight': 'bold'}), 
-        dcc.Markdown(id='column-sums',style={'font-size': '12px'}),
-        
+        html.Label('IMPACTO EN LA RED:', style={'font-weight': 'bold'}),  # Título
+        dbc.Alert(id='column-sums',style={'font-size': '10px',"whiteSpace": "pre-line"}),
+        dbc.Alert(id='msm_alerta', color="warning",dismissable=True,style={'font-size': '10px',"whiteSpace": "pre-line"}),
         html.Div([
             dbc.Button("Download Excel_AX", color="success", className="me-2 botones", id="btn_ax_xlsx"),
             dbc.Button("Download Excel_TX", color="primary", className="me-2 botones", id="btn_tx_xlsx"), 
@@ -85,14 +91,14 @@ layout = html.Div([
             layout={'name': 'preset', 'fit': True},
             maxZoom=3,
             minZoom=0.15,
-            boxSelectionEnabled=True,  
+            boxSelectionEnabled=True,  #  Habilita selección con el mouse
  
         ),
         html.Div(
             id='lst_anillos',
             className='leyenda_anillos',
         )
-    ], style={'position': 'relative', 'width': '100%', 'height': '100vh'})  
+    ], style={'position': 'relative', 'width': '100%', 'height': '100vh'})  # Se asegura que el div padre tenga posición relativa
     ], style={'width': '74%' ,'height': '100vh','display': 'inline-block', 'font-family': 'monospace', 'float': 'right'},className="mi-div")
 ])
 
@@ -108,9 +114,10 @@ layout = html.Div([
     prevent_initial_call=True 
 )
 def download_excel(n_ax, n_tx, region, nodos, type_selection):
-    triggered_id = ctx.triggered_id  
+    triggered_id = ctx.triggered_id  # Identifica qué botón se presionó
+
     if not region or not nodos:
-        return None, None  
+        return None, None  # No genera el archivo si no hay datos
 
     df_dw = df[df['DEPARTAMENTO'] == region]
 
@@ -142,8 +149,8 @@ def download_excel(n_ax, n_tx, region, nodos, type_selection):
 
         output.seek(0)
         return None, dcc.send_bytes(output.getvalue(), filename=f'DATOS_TX_{region}.xlsx')
-
-    return None, None 
+    
+    return None, None  # Si no hay cambios
 
 ##################################
 @callback(
@@ -158,7 +165,7 @@ def lista_de_anillos(selected_region):
     legend_elements = [html.Strong("Leyenda:",style={'font-size': '12px'})]
 
     for anillo in filtered_anillos:
-        color = anillo_colors.get(anillo, "#000000") 
+        color = anillo_colors.get(anillo, "#000000")  # Negro por defecto
         legend_elements.append(
             html.Div([
                 html.Span(style={'display': 'inline-block', 'width': '12px', 'height': '12px', 
@@ -166,7 +173,8 @@ def lista_de_anillos(selected_region):
                 html.Span(anillo, style={'font-size': '11px'}),                 
             ], style={'display': 'flex', 'alignItems': 'center'})
         )
-       
+    
+        
     return legend_elements
 
 @callback(
@@ -174,9 +182,10 @@ def lista_de_anillos(selected_region):
     [Input('REGION', 'value'), Input('type_selection', 'value')]
 )
 def update_nodo_options(selected_region, selected_type):
-
+    # Filtrar según el departamento seleccionado
     filtered_df = df[df['DEPARTAMENTO'] == selected_region]
 
+    # Filtrar según el tipo seleccionado (CODIGO o ANILLO), VALORES UNICOS
     if selected_type=="ID":
         return [{'label': cod, 'value': id} for cod, id in filtered_df[['CODIGO', 'ID']].values]
 
@@ -184,7 +193,7 @@ def update_nodo_options(selected_region, selected_type):
 
         return [{'label': value, 'value': value[:11]} for value in filtered_df[selected_type].dropna().unique()]
    
-
+# Callback para mostrar solo el resultado de la suma de las column
 
 
 @callback(
@@ -216,8 +225,10 @@ def nodos_edges(selected_region):
 
 @callback(
     Output('cytoscape-graph', 'stylesheet'),
-    Output('column-sums', 'children'),      
-    Input('REGION', 'value'),  
+    Output('column-sums', 'children'),
+    Output('msm_alerta','children'),
+    Output('msm_alerta','is_open'),
+    Input('REGION', 'value'), 
     Input('NODO', 'value'), 
     Input('type_selection', 'value'),
 )
@@ -226,7 +237,6 @@ def update_graph(selected_region, selected_nodos, selected_type):
     filtered_df = df[df['DEPARTAMENTO'] == selected_region] ### CANDIDATO A PONERLO EN LA MEMORIA DEL NAVEGADOR
     filtered_eg = df_eg[df_eg['DEPARTAMENTO'] == selected_region]### CANDIDATO A PONERLO EN LA MEMORIA DEL NAVEGADOR
     total_cliente = filtered_df.iloc[:, 7:16].sum().sum()
-   
 
     # Estilos base
     s_stylesheet = [
@@ -258,18 +268,16 @@ def update_graph(selected_region, selected_nodos, selected_type):
         {
                 'selector': '[weight = 300]',
                 'style': {
-                    #'label': 'ENLACE RDFN',
                     'mid-source-arrow-color': 'black',
                     'mid-source-arrow-shape': 'diamond',
                     'mid-source-arrow-fill': 'hollow',
-                    #'text-rotation': 'autorotate',  # Alinea el texto con el edge
-                    #'text-margin-y': '-10',  
                     'line-style': 'dashed',
                     
+                
                 }
         },
 
-        {
+         {
                 'selector': '[weight = 40]',
                 'style': {
                         'label': 'ENLACE MW IPT',
@@ -287,19 +295,21 @@ def update_graph(selected_region, selected_nodos, selected_type):
     
                }
         },
-            
+
+
         {
         'selector': '.AGREGADOR',
         'style': {
             'shape': 'hexagon',
             'border-width': 8,  # Borde grueso
-            'border-color': 'rgba(0, 0, 0, 0.5)',  
+            'border-color': 'rgba(0, 0, 0, 0.5)',  # Borde semi-transparente
             'border-opacity': 0.3,
         
-                } 
-         },
+        } ,
 
-                 {
+        },
+
+        {
         'selector': '.INTERCONEXION',
         'style': {
             "background-color": "transparent",  # Permite ver la transparencia
@@ -311,6 +321,10 @@ def update_graph(selected_region, selected_nodos, selected_type):
         } 
                          
         },
+        
+        
+
+
     ]
   
     for anillo, color in anillo_colors.items():
@@ -319,9 +333,10 @@ def update_graph(selected_region, selected_nodos, selected_type):
             "style": {"background-color": color}
         })
 
+    # Calcular valores de impacto en la red
 
-    if selected_nodos == []:
-        return s_stylesheet, "SIN NODOS SELECIONADOS"
+    if selected_nodos is None or selected_nodos ==[]:
+        return s_stylesheet, "SIN NODOS SELECIONADOS","",False
    
     if selected_nodos:
         filtered_df = filtered_df[filtered_df[selected_type].isin(selected_nodos)]
@@ -334,17 +349,26 @@ def update_graph(selected_region, selected_nodos, selected_type):
     sums = numeric_cols.sum()
     non_zero_sums = sums[sums != 0].astype(int)
 
-        ###################
     cliente_select= non_zero_sums.sum().sum()
     sum_label = ", ".join([f"{value} {column}" for column, value in non_zero_sums.items()])
 
     if not sum_label:
         sum_label = "Nodo/s sin clientes o IAOs dependientes"
 
-    sum_label = f"{sum_label}  \n\n **NODOS TX:** {n_tx}\n **NODOS AX:** {n_ax}  \n\n **NODOS DISTRITALES:** {n_dist} \n\n **AFECTACIÓN EN LA RED(%):** {round(((cliente_select/total_cliente)*100),2)}%"
+    sum_label = f"{sum_label}  \n\n NODOS TX: {n_tx}\n NODOS AX: {n_ax}  \n\n NODOS DISTRITALES: {n_dist} \n\n AFECTACIÓN EN LA RED(%): {round(((cliente_select/total_cliente)*100),2)}%"
 
+        
 
+    ## Si hay nodos seleccionados, cambiar su color a rojo
     lst_tx= filtered_df['ID'].tolist()
+    print(lst_tx)
+    if 'HC-0016-T01' in lst_tx: # TIENE 10 CLAROS
+        alert_state=True
+        alert_msm="Se detecto la seleción de un POP final claro(HC-0016-T01) con 10 CID"
+    else:
+        alert_state=False
+        alert_msm=""
+
     if selected_nodos:
         for nodo in lst_tx:
             s_stylesheet.append({
@@ -355,8 +379,9 @@ def update_graph(selected_region, selected_nodos, selected_type):
             
             })   
 
-    return s_stylesheet, sum_label
+    return s_stylesheet, sum_label,alert_msm,alert_state
 
+# Callback para manejar la selección de nodos, cada vez que se selecione un nodo con un clic se agrergara al Dropdown correspondiente
 
 @callback(
     Output('NODO', 'value'),  
@@ -366,46 +391,28 @@ def update_graph(selected_region, selected_nodos, selected_type):
 )
 def update_selected_nodes(tapped_node, selected_nodes):
   
-    
+
     if selected_nodes is None:
         selected_nodes = []
 
-    triggered_id = ctx.triggered_id 
+    triggered_id = ctx.triggered_id  # Identifica qué elemento activó el callback
 
     if triggered_id == 'cytoscape-graph' and tapped_node:
-        selected_nodes = set(selected_nodes)  
+        selected_nodes = set(selected_nodes)  # Convertir en conjunto para evitar duplicados
 
-   
+        # 🔹 Si tapped_node es un diccionario, lo convertimos en lista
         if isinstance(tapped_node, dict):
             tapped_node = [tapped_node]
 
-      
+        # 🔹 Iteramos sobre la lista de nodos seleccionados
         for node in tapped_node:
             node_id = node['id']
             if node_id in selected_nodes:
-                selected_nodes.remove(node_id) 
+                selected_nodes.remove(node_id)  # Eliminar si ya está
             else:
-                selected_nodes.add(node_id) 
+                selected_nodes.add(node_id)  # Agregar si no está
 
-        return list(selected_nodes)
+        return list(selected_nodes)  # Devolvemos una lista
 
-    return selected_nodes 
-
-
+    return selected_nodes  # Si no hay cambios, devolvemos la lista actual
 #####################################
-@callback(
-    Output('store-selected-nodes', 'data'),
-    Input('cytoscape-graph', 'selectedNodeData'),
-    prevent_initial_call=True
-)
-def store_selected_nodes(selected_nodes):
-    if not selected_nodes:
-        return []  
-    return [node['id'] for node in selected_nodes]      
-
-
-
-
-
-
-
