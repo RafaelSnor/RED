@@ -3,7 +3,7 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 
 
-app = Dash(__name__, use_pages=True,suppress_callback_exceptions=True, external_stylesheets=[dbc.themes.LUX])
+app = Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.LUX])
 
 app.layout = dbc.Container([
     dbc.DropdownMenu(
