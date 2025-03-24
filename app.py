@@ -4,24 +4,17 @@ from dash import Dash, dcc, html, page_container
  import requests
  import threading
  import time
- 
- app = Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.LUX])
+
+app = Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.LUX])
  server = app.server  # Necesario para Render
- 
- app = Dash(__name__, use_pages=True,suppress_callback_exceptions=True, external_stylesheets=[dbc.themes.LUX])
- 
- app.layout = dbc.Container([
+
+app.layout = dbc.Container([
      dbc.Button("☰ Menú", id="open-offcanvas", n_clicks=0, className="mb-2"),
      
      dbc.Offcanvas(
          [
              dbc.Nav(
-     dbc.DropdownMenu(
-     label="☰ Menú",
-     direction="end",
-     children=[
-         dbc.Nav(
-                 [
+               [
                      dbc.NavLink("RED AX", href="/RED_AX", active="exact"),
                      dbc.NavLink("RED TX", href="/RED_TX", active="exact"),
                      #dbc.NavLink("RED TX TEST", href="/RED_TX_TES", active="exact"),
@@ -30,15 +23,14 @@ from dash import Dash, dcc, html, page_container
                  vertical=True,
                  pills=True,
              )
-         ],
+          ],
          id="offcanvas-menu",
          title="Menú",
          is_open=False,
          placement="start",
-     ],
-     ),
- 
-     html.Br(),
+       ),
+
+  html.Br(),
      page_container  # Contenedor de las páginas dinámicas
  ], fluid=True)
  
@@ -62,16 +54,11 @@ from dash import Dash, dcc, html, page_container
          except Exception as e:
              print("Error en keep-alive:", e)
          time.sleep(40)  # Cada 10 minutos
- ], fluid=True,style={'background-color': '#f0f0f0'} )
- 
- if __name__ == '__main__':
+
+if __name__ == '__main__':
      if not app.debug:  # Solo ejecuta el keep-alive en producción
          threading.Thread(target=keep_awake, daemon=True).start()
- 
- if __name__ == '__main__':
      app.run(debug=True, dev_tools_ui=False, dev_tools_props_check=False)
- 
-    
 
 
     
