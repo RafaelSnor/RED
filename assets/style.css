@@ -37,6 +37,7 @@
     border-radius: 10px; /* Redondear esquinas */
 }
 
+
 .botones{
 	font-size: 12px;
 	border-radius: 10px;
@@ -52,7 +53,8 @@
   padding: 10px;
   border-radius: 5px;
   box-shadow: 0px 0px 5px rgba(0,0,0,03);
-  Index: 10;  /*  Asegura que esté sobre el gráfico*/
+  z-index: 10;  /*  Asegura que esté sobre el gráfico*/
+  background: rgba(255, 255, 255, 0.8);
 }
 
 
@@ -64,6 +66,44 @@
     padding: 15px;
     margin: 5px;
     border-radius: 10px;
-    overflow-y: scroll;
 	
+}
+
+.tab-container .tab {
+  font-size: 12px !important;  /* Reduce el tamaño del texto */
+  height: 10px !important;  /* Reduce la altura */
+  min-width: 20px !important;  /* Evita que sean muy anchos */
+}
+
+/* Estilo para el contenedor de Tabs */
+.tab-container {
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  background-color: #121212; /* Fondo oscuro */
+  padding: 5px;
+  text-align: center;
+  border-bottom: 1px solid #333; /* Línea sutil en la parte inferior */
+
+}
+.tab{
+  font-size: 14px !important;
+  font-weight: bold;
+  padding: 15px 20px !important;
+  min-width: 150px !important;
+  text-align: center;
+  color: #b0b0b0 !important; /* Color gris claro para texto */
+  background-color: #1a1a1a !important; /* Fondo oscuro */
+  border: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+}
+
+.tab--selected {
+  color: #ffffff !important; /* Texto blanco */
+  background-color: #1a1a1a !important; /* Fondo igual al resto */
+  border-bottom: 2px solid #007bff !important; /* Línea azul */
 }
