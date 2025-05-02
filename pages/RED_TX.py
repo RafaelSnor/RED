@@ -175,16 +175,6 @@ def lista_de_anillos(selected_region):
     
 
     legend_elements = [html.Strong("Leyenda:",style={'font-size': '12px'})]
-
-    for anillo in filtered_anillos:
-        color = anillo_colors.get(anillo, "#000000") 
-        legend_elements.append(
-            html.Div([
-                html.Span(style={'display': 'inline-block', 'width': '12px', 'height': '12px', 
-                                 'backgroundColor': color, 'marginRight': '5px'}),
-                html.Span(anillo, style={'font-size': '11px'}),                 
-            ], style={'display': 'flex', 'alignItems': 'center'})
-        )
     
         
     return legend_elements
@@ -294,12 +284,6 @@ def update_graph(selected_region, selected_nodos, selected_type):
                         'curve-style': 'bezier',
                         'line-style': 'dashed',
                         'arrow-scale': 1,
-                        'line-color': 'blue',
-                        'text-rotation': 'autorotate',
-                        'text-margin-y': '-10',  
-                        'font-size': '12px',  
-                        'color': 'black', 
-                        'font-weight': 'bold',
     
                }
         },
@@ -341,13 +325,19 @@ def update_graph(selected_region, selected_nodos, selected_type):
     if selected_nodos:
         filtered_df = filtered_df[filtered_df[selected_type].isin(selected_nodos)]
 
+        for anillo in filtered_anillos:
+        color = anillo_colors.get(anillo, "#000000") 
+        legend_elements.append(
+            html.Div([
+                html.Span(style={'display': 'inline-block', 'width': '12px', 'height': '12px', 
+                                 'backgroundColor': color, 'marginRight': '5px'}),
+                html.Span(anillo, style={'font-size': '11px'}),                 
+            ], style={'display': 'flex', 'alignItems': 'center'})
+        )
     numeric_cols = filtered_df.iloc[:, 7:16].select_dtypes(include='number')
     n_tx = filtered_df['CODIGO'].count()
     n_dist = filtered_df['DISTRITAL'].dropna().count()
     n_ax = int(filtered_df['NODOS AX'].sum())
-
-    sums = numeric_cols.sum()
-    non_zero_sums = sums[sums != 0].astype(int)
 
     cliente_select= non_zero_sums.sum().sum()
     sum_label = ", ".join([f"{value} {column}" for column, value in non_zero_sums.items()])
