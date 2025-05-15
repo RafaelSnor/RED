@@ -1,4 +1,4 @@
-from dash import Dash, dcc, html, Input, Output, callback, dash_table, register_page
+from dash import Dash, dcc, html, Input, Output, register_page
 import dash_cytoscape as cyto
 import dash_bootstrap_components as dbc
 import pandas as pd
@@ -58,12 +58,6 @@ layout = html.Div([
                 }
             },
             {
-                "selector": "edge",
-                "style": {
-                    "width": 2.5,
-                    "curve-style": "bezier",
-                    "target-arrow-shape": "triangle"
-                }
             }
         ]
     )    
@@ -189,18 +183,6 @@ def displayTapNodeData(tapped_node,value_data):
 
     # Crear la tabla HTML a partir de vlan_info
 
-    tabla = dash_table.DataTable(
-        style_data={
-        'whiteSpace': 'normal',
-        'height': 'auto',
-        'lineHeight': '5px',
-        'textAlign': 'left',
-         },
-        sort_action='native',
-        data= vlan.to_dict('records'),
-        columns= [{"name": i, "id": i} for i in vlan.columns],
-        page_size=10
-        )
  
     conteo = vlan['VALIDACION'].value_counts()
 
@@ -232,12 +214,6 @@ def update_cytoscape_elements(selected_node, type_selec):
         root = nodo_d[0]
         dependents = df_d[df_d['ID'] == root]
 
-    elif type_selec == "VLAN":
-        nodo_d = df_vip.loc[df_vip['Codigo NODO COBERTURADOR'] == selected_node, 'DISTRITAL'].values
-        if nodo_d.size == 0:  
-            return [], {'name': 'breadthfirst', 'directed': True}  
-        root = nodo_d[0]
-   
         dependents = df_d[df_d['ID'] == root]
 
 
