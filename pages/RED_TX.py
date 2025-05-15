@@ -1,8 +1,6 @@
 from dash import Dash, dcc, html, Input, Output, callback, ctx, register_page, State, callback_context
 import dash_cytoscape as cyto
 import pandas as pd
-import dash_bootstrap_components as dbc
-import io
 
 url='https://docs.google.com/spreadsheets/d/e/2PACX-1vTU0SdQdcULvuqk9abcnzdW609dHXszo-JEfvp0RkQAyR1maTr5m9eINsli_5iGKQ/pub?output=xlsx'
 
@@ -20,10 +18,6 @@ anillo_colors = {
         "ANILLO - 02": "#9932CC",
         "ANILLO - 03": "#00BFFF",
         "ANILLO - 04": "#FFD700",
-        "ANILLO - 05": "#FFB6C1",
-        "ANILLO - 06": "#4169E1",
-        "ANILLO - 07": "#A0522D",
-        "ANILLO - 08": "#273746",
     }
 
 layout = html.Div([
@@ -209,9 +203,6 @@ def nodos_edges(selected_region):
         "label": f"{str(row['CODIGO'])[:11]}\n{str(row['CODIGO'])[12:]}" if pd.notna(row['CODIGO']) else "",
         "firstname": str(row['ANILLO']).strip(),
         },
-            "position": {
-                "x": float(row['X']) if pd.notna(row['X']) else 0,
-                "y": float(row['Y']) if pd.notna(row['Y']) else 0,
             },
             'classes': row['TIPO NODO'],
         }
@@ -275,17 +266,6 @@ def update_graph(selected_region, selected_nodos, selected_type):
                 }
         },
 
-         {
-                'selector': '[weight = 40]',
-                'style': {
-                        'label': 'ENLACE MW IPT',
-                        'target-arrow-color': 'blue',  
-                        'target-arrow-shape': 'triangle',
-                        'curve-style': 'bezier',
-                        'line-style': 'dashed',
-                        'arrow-scale': 1,
-    
-               }
         },
 
 
@@ -355,16 +335,7 @@ def update_graph(selected_region, selected_nodos, selected_type):
     else:
         alert_state=False
         alert_msm=""
-
-    if selected_nodos:
-        for nodo in lst_tx:
-            s_stylesheet.append({
-                "selector": f"node[id = '{nodo}']",
-                "style": {
-                    "background-color": "#FF0000",  # Rojo
-                },    
-            
-            })   
+ 
 
     return s_stylesheet, sum_label,alert_msm,alert_state
 
